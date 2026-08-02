@@ -14,6 +14,27 @@ function parseNumber(text) {
   return Number.isNaN(n) ? null : n;
 }
 
+export function normalizeSymbol(symbol) {
+  if (!symbol) return '';
+  let s = String(symbol).trim().toUpperCase();
+  const dotSplit = s.split(/[\._#]/)[0];
+  const fxMatch = s.match(/^([A-Z]{6})[A-Z0-9]{1,3}$/);
+  if (fxMatch) {
+    const base = fxMatch[1];
+    const FX_CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'NZD', 'CAD', 'CHF', 'XAU', 'XAG', 'BTC', 'ETH'];
+    const c1 = base.slice(0, 3);
+    const c2 = base.slice(3, 6);
+    if (FX_CURRENCIES.includes(c1) || FX_CURRENCIES.includes(c2)) {
+      return base;
+    }
+  }
+  const indexMatch = s.match(/^([A-Z]{2,4}\d{2,3})[A-Z0-9]{1,2}$/);
+  if (indexMatch) {
+    return indexMatch[1];
+  }
+  return dotSplit || s;
+}
+
 function parseDate(text) {
   // Format: 2025.11.28 22:19:26
   const t = text.trim();
@@ -87,6 +108,7 @@ function parsePositions(html) {
       openTime: parseDate(openTime),
       closeTime: parseDate(closeTime),
       symbol,
+      baseSymbol: normalizeSymbol(symbol),
       side: type.toLowerCase(),
       volume: parseNumber(volume),
       openPrice: parseNumber(openPrice),
@@ -116,6 +138,7 @@ function parseDeals(html) {
       id: deal,
       time: parseDate(time),
       symbol: symbol || null,
+      baseSymbol: symbol ? normalizeSymbol(symbol) : null,
       type: (type || '').toLowerCase(),
       direction: (direction || '').toLowerCase(),
       volume: parseNumber(volume),
@@ -150,6 +173,7 @@ function parseOpenPositions(html) {
       id: position,
       openTime: parseDate(time),
       symbol,
+      baseSymbol: normalizeSymbol(symbol),
       side: type.toLowerCase(),
       volume: parseNumber(volume),
       openPrice: parseNumber(price),

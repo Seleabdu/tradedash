@@ -18,6 +18,19 @@ function CustomTooltip({ active, payload }) {
   );
 }
 
+function formatYAxisTick(v) {
+  if (v == null || Number.isNaN(v)) return '';
+  const abs = Math.abs(v);
+  const sign = v < 0 ? '-' : '';
+  if (abs >= 1000) {
+    const inK = abs / 1000;
+    const formattedK = Number(inK.toFixed(2));
+    return `${sign}$${formattedK}k`;
+  }
+  const formattedVal = abs % 1 === 0 ? abs.toString() : abs.toFixed(2);
+  return `${sign}$${formattedVal}`;
+}
+
 export default function EquityCurveChart({ equityCurve, startingBalance, height = 280 }) {
   if (!equityCurve.length) {
     return <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--bone-faint)', fontSize: 13 }}>No closed trades yet</div>;
@@ -50,12 +63,12 @@ export default function EquityCurveChart({ equityCurve, startingBalance, height 
         />
         <YAxis
           domain={[min - pad, max + pad]}
-          tickFormatter={(v) => `$${(v / 1000).toFixed(0)}k`}
+          tickFormatter={formatYAxisTick}
           stroke="#5e6470"
           tick={{ fontSize: 11, fontFamily: 'IBM Plex Mono' }}
           tickLine={false}
           axisLine={false}
-          width={48}
+          width={68}
         />
         <ReferenceLine y={startingBalance} stroke="#5e6470" strokeDasharray="3 3" />
         <Tooltip content={<CustomTooltip />} />

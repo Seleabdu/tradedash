@@ -1,6 +1,8 @@
 // Analytics engine — turns raw parsed trades into every metric the dashboard shows.
 // Pure functions, no side effects, so they're easy to test and reuse.
 
+import { normalizeSymbol } from './parser.js';
+
 const MS_DAY = 24 * 60 * 60 * 1000;
 
 export function netPL(trade) {
@@ -8,8 +10,8 @@ export function netPL(trade) {
 }
 
 function pipSize(symbol) {
-  const s = (symbol || '').toUpperCase();
-  const core = s.replace(/[^A-Z]/g, '');
+  const norm = normalizeSymbol(symbol);
+  const core = (norm || '').toUpperCase().replace(/[^A-Z]/g, '');
   if (core.includes('JPY')) return 0.01;
   if (core.includes('XAU') || core.includes('GOLD')) return 0.1;
   if (core.includes('XAG') || core.includes('SILVER')) return 0.01;
@@ -32,7 +34,7 @@ export function tradeRMultiple(trade) {
 
 export function tradePips(trade) {
   if (trade.closePrice == null || trade.openPrice == null) return null;
-  const size = pipSize(trade.symbol);
+  const size = pipSize(trade.baseSymbol || trade.symbol);
   if (size == null) return null;
   const direction = trade.side === 'buy' ? 1 : -1;
   const move = (trade.closePrice - trade.openPrice) * direction;
@@ -61,6 +63,7 @@ export function enrichTrades(trades) {
       const open = new Date(t.openTime);
       return {
         ...t,
+        baseSymbol: t.baseSymbol || normalizeSymbol(t.symbol),
         pl,
         isWin: pl > 0,
         isLoss: pl < 0,
@@ -201,7 +204,7 @@ export function summarizeGroups(enriched, keyFn) {
 }
 
 export function computeBySymbol(enriched) {
-  return summarizeGroups(enriched, (t) => t.symbol);
+  return summarizeGroups(enriched, (t) => t.baseSymbol || normalizeSymbol(t.symbol));
 }
 
 export function computeBySession(enriched) {

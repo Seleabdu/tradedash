@@ -61,9 +61,12 @@ export function clearAll() {
 // Merge trades from all stored reports, deduping by trade id (position id is
 // stable across exports of the same account, so re-importing a newer report
 // that overlaps an older one won't double count).
-export function mergeAllTrades(state) {
+export function mergeAllTrades(state, selectedIds = null) {
   const seen = new Map();
-  for (const report of state.reports) {
+  const reportsToMerge = selectedIds && selectedIds.length > 0
+    ? state.reports.filter((r) => selectedIds.includes(r.id))
+    : state.reports;
+  for (const report of reportsToMerge) {
     for (const trade of report.trades) {
       seen.set(trade.id, trade);
     }
@@ -71,9 +74,12 @@ export function mergeAllTrades(state) {
   return Array.from(seen.values());
 }
 
-export function mergeAllDeals(state) {
+export function mergeAllDeals(state, selectedIds = null) {
   const seen = new Map();
-  for (const report of state.reports) {
+  const reportsToMerge = selectedIds && selectedIds.length > 0
+    ? state.reports.filter((r) => selectedIds.includes(r.id))
+    : state.reports;
+  for (const report of reportsToMerge) {
     for (const deal of report.deals || []) {
       seen.set(deal.id, deal);
     }
@@ -81,9 +87,12 @@ export function mergeAllDeals(state) {
   return Array.from(seen.values());
 }
 
-export function latestOpenPositions(state) {
-  if (!state.reports.length) return [];
-  const latest = [...state.reports].sort((a, b) => new Date(b.meta.reportDate || 0) - new Date(a.meta.reportDate || 0))[0];
+export function latestOpenPositions(state, selectedIds = null) {
+  const reportsToMerge = selectedIds && selectedIds.length > 0
+    ? state.reports.filter((r) => selectedIds.includes(r.id))
+    : state.reports;
+  if (!reportsToMerge.length) return [];
+  const latest = [...reportsToMerge].sort((a, b) => new Date(b.meta.reportDate || 0) - new Date(a.meta.reportDate || 0))[0];
   return latest ? latest.openPositions : [];
 }
 
