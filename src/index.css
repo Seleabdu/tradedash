@@ -1,0 +1,61 @@
+:root {
+  --ink: #15171c;
+  --ink-2: #1b1e25;
+  --ink-3: #20242c;
+  --line: #2b303a;
+  --line-soft: #23272f;
+  --bone: #edeeec;
+  --bone-dim: #9aa0ab;
+  --bone-faint: #5e6470;
+  --amber: #e8a33d;
+  --amber-dim: #8a6326;
+  --green: #3fb68b;
+  --green-dim: #1f4f40;
+  --red: #e5566d;
+  --red-dim: #5a2530;
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root { min-height: 100vh; }
+
+::selection { background: var(--amber-dim); color: var(--bone); }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: var(--line); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--bone-faint); }
+
+button {
+  font-family: var(--font-ui);
+  cursor: pointer;
+}
+
+a { color: inherit; }
+
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.pl-pos { color: var(--green); }
+.pl-neg { color: var(--red); }
+.pl-flat { color: var(--bone-dim); }
+
+/* Focus visibility for keyboard nav */
+:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
